@@ -45,17 +45,24 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("♣ كلاوب", callback_data="t_♣")]
         ]
         await query.message.edit_text("اختر الطرنيب الأساسي لمزاودتك:", reply_markup=InlineKeyboardMarkup(kb))
-    elif data.startswith("t_"):
+        return
+
+    if data.startswith("t_"):
         session['trump'] = data.split("_")[1]
-        await query.message.edit_text(f"✅ تم تثبيت الطرنيب: {SUITS[session['trump']]}\nالبوت جاهز لمساعدتك في اللعب!", reply_markup=main_menu())
-    elif data == "select_suit":
+        t_name = SUITS.get(session['trump'], '')
+        await query.message.edit_text(f"✅ تم تثبيت الطرنيب: {t_name}\nالبوت جاهز لمساعدتك في اللعب!", reply_markup=main_menu())
+        return
+
+    if data == "select_suit":
         kb = [
             [InlineKeyboardButton("♠ سبيت", callback_data="s_♠"), InlineKeyboardButton("♥ هارت", callback_data="s_♥")],
             [InlineKeyboardButton("♦ ديناري", callback_data="s_♦"), InlineKeyboardButton("♣ كلاوب", callback_data="s_♣")],
             [InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="menu")]
         ]
         await query.message.edit_text("اختر البدلة لإضافة أوراق يدك:", reply_markup=InlineKeyboardMarkup(kb))
-    elif data.startswith("s_"):
+        return
+
+    if data.startswith("s_"):
         suit = data.split("_")[1]
         row = []
         kb_list = []
@@ -67,23 +74,33 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(row) > 0:
             kb_list.append(row)
         kb_list.append([InlineKeyboardButton("🔙 القائمة الرئيسية", callback_data="menu")])
-        await query.message.edit_text(f"اختر كروت بدلة {SUITS[suit]} المتوفرة معك:", reply_markup=InlineKeyboardMarkup(kb_list))
-    elif data.startswith("c_"):
+        suit_name = SUITS.get(suit, '')
+        await query.message.edit_text(f"اختر كروت بدلة {suit_name} المتوفرة معك:", reply_markup=InlineKeyboardMarkup(kb_list))
+        return
+
+    if data.startswith("c_"):
         parts = data.split("_")
         suit = parts[1]
         card = parts[2]
         card_str = f"{card}{suit}"
         if card_str not in session['hand']:
             session['hand'].append(card_str)
-        await query.message.edit_text(f"🃏 أوراقك المسجلة حتى الآن: {', '.join(session['hand'])}\nاختر كرت آخر أو عد للقائمة.", reply_markup=main_menu())
+        cards_txt = ", ".join(session['hand'])
+        await query.message.edit_text(f"🃏 أوراقك المسجلة حتى الآن: {cards_txt}\nاختر كرت آخر أو عد للقائمة.", reply_markup=main_menu())
+        return
 
-elif data == "show_tracker":
+if data == "show_tracker":
         await query.message.edit_text("📊 تتبع الكروت: البوت يراقب الأوراق النافذة ويحذرك من حرق الكروت العالية أو اللعب بلون نفد عند الخصوم.", reply_markup=main_menu())
-    elif data == "reset":
+        return
+
+    if data == "reset":
         user_sessions[user_id] = {'hand': [], 'trump': None}
         await query.message.edit_text("🔄 تم مسح الذاكرة وإعادة ضبط الجولة بنجاح.", reply_markup=main_menu())
-    elif data == "menu":
+        return
+
+    if data == "menu":
         await query.message.edit_text("القائمة الرئيسية:", reply_markup=main_menu())
+        return
 
 def main():
     TOKEN = "8932575812:AAHfy3ZklX6Kaltch6YZqx8rYgTqP_-HEnM"
