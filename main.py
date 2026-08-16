@@ -107,5 +107,4 @@ def main():
     logger.info("Bot is running...")
     app.run_polling()
 
-if name == "main":
-    main()
+if namain()
